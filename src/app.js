@@ -2,6 +2,7 @@ const express = require("express");
 const Url = require("./models/url.model");
 const redis = require("./config/redis");
 const clickQueue = require("./queue/click.queue");
+const rateLimiter = require("./middleware/ratelimiter");
 
 
 const app = express();
@@ -61,7 +62,7 @@ const shortCode = encodeBase62(id);
 
 // 🔁 REDIRECT short URL (with Redis cache)
 // 🔁 REDIRECT short URL (async analytics)
-app.get("/:shortCode", async (req, res) => {
+app.get("/:shortCode", rateLimiter, async (req, res) => {
   const { shortCode } = req.params;
 
   const cachedUrl = await redis.get(`url:${shortCode}`)
